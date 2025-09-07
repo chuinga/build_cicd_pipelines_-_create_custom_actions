@@ -1,0 +1,41 @@
+📜 Logging to ./logs/delete-all-stacks/delete-log-2025-09-07_22-07-04.txt
+🔒 Checking AWS identity...
+🚨 You are logged in as:
+👤 User:       cicd
+🔗 ARN:        arn:aws:iam::175498093231:user/cicd
+🏢 Account ID: 175498093231
+🌍 Region:     us-east-1
+
+❓ Is this the right account to wreak havoc on? (y/N): 🕵️ Scanning for active CloudFormation stacks...
+🎉 No active stacks found.
+➡️  Proceeding directly to orphaned resource sweep... (important!)
+
+🧹 Starting orphaned resource sweep (these often incur charges).
+🖥️ EC2 instances found: i-0e538518d1dd27d3f	i-0ceb64a56780304d8	i-03c77027d03c9fb83
+   ➤ Terminate ALL of these EC2 instances? (y/N): 
+An error occurred (InvalidInstanceID.Malformed) when calling the TerminateInstances operation: The instance ID 'i-0e538518d1dd27d3f	i-0ceb64a56780304d8	i-03c77027d03c9fb83' is malformed
+⚠️ Terminate call failed.
+✅ No NAT Gateways.
+✅ No Elastic IPs.
+✅ No unattached EBS volumes.
+✅ No load balancers.
+✅ No VPC endpoints.
+✅ No RDS instances.
+✅ No manual RDS snapshots.
+🪣 S3 buckets found.
+   ➤ EMPTY & DELETE ALL S3 buckets? (dangerous) (y/N):    • cicd-terraform-demo-bucket-1a791268
+remove_bucket: cicd-terraform-demo-bucket-1a791268
+   • cicd-terraform-demo-bucket-1c5c2442
+remove_bucket: cicd-terraform-demo-bucket-1c5c2442
+   • uda-acme-blue-green-r5nqjse5
+remove_bucket: uda-acme-blue-green-r5nqjse5
+   • website-artifacts-175498093231-us-east-1
+delete: s3://website-artifacts-175498093231-us-east-1/error.html
+delete: s3://website-artifacts-175498093231-us-east-1/index.html
+remove_bucket: website-artifacts-175498093231-us-east-1
+✅ No Glue resources.
+✅ No Amazon Location resources.
+✅ No customer-managed KMS keys.
+✅ No SNS topics.
+
+🎯 Sweep complete. Re-run the script until it finds nothing. Keep an eye on Cost Explorer for the next day to confirm charges drop.
