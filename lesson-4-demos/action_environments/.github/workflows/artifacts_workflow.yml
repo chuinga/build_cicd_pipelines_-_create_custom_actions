@@ -17,30 +17,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{secrets.AWS_SESSION_TOKEN}}
           aws-region: us-east-1
       - name: Create CloudFormation Stack
-        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        uses: aws-actions/aws-cloudformation-github-deploy@v1.0.3
         with:
-          name: uda-artifact
+          name: uda-artifact-v2
           template: uda_artifact.yml
           no-fail-on-empty-changeset: "1"
           
       - name: Upload files to S3 bucket
         run: |
-          aws s3 cp ./website/${{ github.event.inputs.index_document }} s3://${{env.BUCKET_NAME}} 
-          aws s3 cp ./website/${{ github.event.inputs.error_document }} s3://${{env.BUCKET_NAME}} 
+          BUCKET_NAME="website-artifacts-$(aws sts get-caller-identity --query Account --output text)-us-east-1"
+          aws s3 cp ./website/${{ github.event.inputs.index_document }} s3://$BUCKET_NAME
+          aws s3 cp ./website/${{ github.event.inputs.error_document }} s3://$BUCKET_NAME 
 
       - name: Show S3 bucket website URL
         run: |
           aws cloudformation describe-stacks \
-            --stack-name uda-artifact \
+            --stack-name uda-artifact-v2 \
             --query 'Stacks[0].Outputs[?OutputKey==`ArtifactBucketWebsiteURL`].OutputValue' \
             --output text
 
