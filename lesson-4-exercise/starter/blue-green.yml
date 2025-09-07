@@ -5,42 +5,91 @@ on:
       - main
 
 env:
-
-  TF_ACTION_WORKING_DIR: 'terraform' 
+  TF_ACTION_WORKING_DIR: 'terraform'
+  AWS_REGION: 'us-east-1'
 
 jobs:
   terraform:
     name: 'Terraform'
-    runs-on: ubuntu-latest   # Use the latest Ubuntu runner
+    runs-on: ubuntu-latest
 
     steps:
       # Check out the code to the runner
-      - name: 
+      - name: Checkout code
+        uses: actions/checkout@v4
       
       # Configure AWS credentials
-      - name: 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
       # Set up the specified version of Terraform
-      - name:
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.0
       
       # Initialize your Terraform configuration
-      - name: 
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ${{ env.TF_ACTION_WORKING_DIR }}
 
       # Validate your Terraform configuration
-      - name: 
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: ${{ env.TF_ACTION_WORKING_DIR }}
 
       # Generate and display an execution plan
-      - name: 
+      - name: Terraform Plan
+        run: terraform plan
+        working-directory: ${{ env.TF_ACTION_WORKING_DIR }}
+      
       # Apply the changes required to reach the desired state of the configuration
-      - name: 
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        working-directory: ${{ env.TF_ACTION_WORKING_DIR }}
 
-      # Check the status of the Blue environment (pseudo-code)
-      - name:
+      # Check the status of the Blue environment
+      - name: Check Blue Environment Status
+        id: blue-status
+        run: |
+          # Pseudo-code: Check if Blue environment is currently live
+          # BLUE_LIVE=$(aws elbv2 describe-target-groups --names blue-tg --query 'TargetGroups[0].HealthyHostCount')
+          # For demo purposes, simulate Blue environment status
+          BLUE_LIVE="true"
+          echo "blue-live=$BLUE_LIVE" >> $GITHUB_OUTPUT
+          echo "Blue environment live status: $BLUE_LIVE"
 
-      # Check the status of the Green environment (pseudo-code)
-      - name: 
+      # Check the status of the Green environment
+      - name: Check Green Environment Status
+        id: green-status
+        run: |
+          # Pseudo-code: Check if Green environment is currently live
+          # GREEN_LIVE=$(aws elbv2 describe-target-groups --names green-tg --query 'TargetGroups[0].HealthyHostCount')
+          # For demo purposes, simulate Green environment status
+          GREEN_LIVE="false"
+          echo "green-live=$GREEN_LIVE" >> $GITHUB_OUTPUT
+          echo "Green environment live status: $GREEN_LIVE"
 
-      # Switch traffic to the Green environment if the Blue environment is currently live (pseudo-code)
-      - name: 
+      # Switch traffic to the Green environment if the Blue environment is currently live
+      - name: Switch Traffic to Green
+        if: steps.blue-status.outputs.blue-live == 'true'
+        run: |
+          echo "Blue environment is currently live. Switching traffic to Green..."
+          # Pseudo-code: Update load balancer to point to Green environment
+          # aws elbv2 modify-listener --listener-arn $LISTENER_ARN --default-actions Type=forward,TargetGroupArn=$GREEN_TARGET_GROUP_ARN
+          # aws route53 change-resource-record-sets --hosted-zone-id $ZONE_ID --change-batch file://green-dns-update.json
+          echo "Traffic successfully switched to Green environment"
 
-      # Switch traffic to the Blue environment if the Green environment is currently live (pseudo-code)
-      - name: 
+      # Switch traffic to the Blue environment if the Green environment is currently live
+      - name: Switch Traffic to Blue
+        if: steps.green-status.outputs.green-live == 'true'
+        run: |
+          echo "Green environment is currently live. Switching traffic to Blue..."
+          # Pseudo-code: Update load balancer to point to Blue environment
+          # aws elbv2 modify-listener --listener-arn $LISTENER_ARN --default-actions Type=forward,TargetGroupArn=$BLUE_TARGET_GROUP_ARN
+          # aws route53 change-resource-record-sets --hosted-zone-id $ZONE_ID --change-batch file://blue-dns-update.json
+          echo "Traffic successfully switched to Blue environment"
